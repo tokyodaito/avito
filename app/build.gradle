@@ -1,6 +1,9 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+    id 'com.google.dagger.hilt.android'
+    id 'kotlin-parcelize'
 }
 
 android {
@@ -9,6 +12,10 @@ android {
 
     viewBinding {
         enabled = true
+    }
+
+    kapt {
+        correctErrorTypes true
     }
 
     defaultConfig {
@@ -41,6 +48,18 @@ ext {
     appCompatVersion = '1.6.1'
     materialVersion = '1.8.0'
     constraintLayoutVersion = '2.1.4'
+    kotlinStdlibVersion = '1.9.0'
+    coilVersion = '1.4.0'
+    roomVersion = '2.5.2'
+    hiltVersion = '2.48'
+    okhttpVersion = '4.12.0'
+    retrofitVersion = '2.9.0'
+    rxjavaVersion = '2.2.21'
+    rxAndroidVersion = '2.1.1'
+    lifecycleVersion = '2.3.1'
+    gsonConverterVersion = '2.9.0'
+    rxjavaAdapterVersion = '2.9.0'
+    fragmentKtxVersion = '1.5.2'
 }
 
 dependencies {
@@ -50,6 +69,40 @@ dependencies {
     implementation "androidx.appcompat:appcompat:$appCompatVersion"
     implementation "com.google.android.material:material:$materialVersion"
     implementation "androidx.constraintlayout:constraintlayout:$constraintLayoutVersion"
+
+    // UI
+    implementation("io.coil-kt:coil:$coilVersion")
+
+    // Room Database
+    implementation "androidx.room:room-runtime:$roomVersion"
+    annotationProcessor "androidx.room:room-compiler:$roomVersion"
+    kapt "androidx.room:room-compiler:$roomVersion"
+    implementation "androidx.room:room-rxjava2:2.3.0"
+
+    // Dependency Injection - Hilt
+    implementation "com.google.dagger:hilt-android:$hiltVersion"
+    kapt "com.google.dagger:hilt-android-compiler:$hiltVersion"
+
+    // Networking
+    implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
+    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okhttpVersion"
+
+    // RxJava
+    implementation "io.reactivex.rxjava2:rxjava:$rxjavaVersion"
+    implementation "io.reactivex.rxjava2:rxandroid:$rxAndroidVersion"
+
+    // LiveData & ViewModel
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion"
+    implementation "androidx.fragment:fragment-ktx:$fragmentKtxVersion"
+
+
+    // Retrofit converters & adapters
+    implementation "com.squareup.retrofit2:converter-gson:$gsonConverterVersion"
+    implementation "com.squareup.retrofit2:adapter-rxjava2:$rxjavaAdapterVersion"
+
+    implementation "io.coil-kt:coil:1.4.0"
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

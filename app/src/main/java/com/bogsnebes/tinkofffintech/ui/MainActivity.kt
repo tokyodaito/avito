@@ -1,11 +1,14 @@
-package com.bogsnebes.tinkofffintech
+package com.bogsnebes.tinkofffintech.ui
 
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import com.bogsnebes.tinkofffintech.R
 import com.bogsnebes.tinkofffintech.databinding.ActivityMainBinding
 import com.bogsnebes.tinkofffintech.ui.popular.PopularFragment
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private var _binding: ActivityMainBinding? = null
     private val binding get() = _binding!!
