@@ -3,4 +3,8 @@
     <string name="error">Произошла ошибка при загрузке данных, проверьте подключение к сети</string>
     <string name="reload">Повторить</string>
     <string name="not_found">Не найдено</string>
+    <string name="title_favourites">Избранное</string>
+    <string name="search_favourites">Поиск</string>
+    <string name="title_popular">Популярные</string>
+    <string name="search_popular">Поиск</string>
 </resources>

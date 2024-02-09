@@ -11,11 +11,11 @@
         android:layout_marginStart="16dp"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="16dp"
-        app:hintText="@string/search_popular"
+        app:hintText="@string/search_favourites"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:titleText="@string/title_popular"
+        app:titleText="@string/title_favourites"
         app:titleTextColor="@color/black"
         app:titleTextSize="25sp" />
 

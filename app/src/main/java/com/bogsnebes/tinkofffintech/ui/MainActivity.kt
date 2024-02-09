@@ -5,6 +5,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.bogsnebes.tinkofffintech.R
 import com.bogsnebes.tinkofffintech.databinding.ActivityMainBinding
+import com.bogsnebes.tinkofffintech.ui.favourites.FavouritesFragment
 import com.bogsnebes.tinkofffintech.ui.popular.PopularFragment
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -18,6 +19,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         openPopularFragment()
+        setupButtonOpenPopular()
+        setupButtonOpenFavourites()
     }
 
     private fun openPopularFragment() {
@@ -25,6 +28,25 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container_view_tag, PopularFragment.newInstance())
             .commit()
+    }
+
+    private fun openFavouritesFragment() {
+        showProgressBar(true)
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container_view_tag, FavouritesFragment.newInstance())
+            .commit()
+    }
+
+    private fun setupButtonOpenPopular() {
+        binding.appCompatButton2.setOnClickListener {
+            openPopularFragment()
+        }
+    }
+
+    private fun setupButtonOpenFavourites() {
+        binding.appCompatButton.setOnClickListener {
+            openFavouritesFragment()
+        }
     }
 
     fun showProgressBar(show: Boolean) {

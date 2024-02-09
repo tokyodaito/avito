@@ -1,9 +1,8 @@
-package com.bogsnebes.tinkofffintech.ui.popular.custom_view
+package com.bogsnebes.tinkofffintech.ui.custom_view
 
 import android.content.Context
 import android.util.AttributeSet
 import android.view.Gravity
-import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -24,17 +23,29 @@ class ToolBar @JvmOverloads constructor(
         orientation = HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
 
+        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.ToolBar, defStyleAttr, 0)
+
+        val titleText = typedArray.getString(R.styleable.ToolBar_titleText) ?: "Популярное"
+        val titleTextSize = typedArray.getDimension(R.styleable.ToolBar_titleTextSize, 25f)
+        val titleTextColor = typedArray.getColor(
+            R.styleable.ToolBar_titleTextColor,
+            resources.getColor(R.color.black)
+        )
+        val hintText = typedArray.getString(R.styleable.ToolBar_hintText) ?: "Поиск"
+
+        typedArray.recycle()
+
         textView = TextView(context).apply {
-            text = "Популярное"
-            textSize = 25f
-            setTextColor(resources.getColor(R.color.black))
-            layoutParams = LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+            text = titleText
+            textSize = titleTextSize / resources.displayMetrics.scaledDensity
+            setTextColor(titleTextColor)
+            layoutParams = LayoutParams(0, LayoutParams.WRAP_CONTENT).apply {
                 weight = 1f
             }
         }
 
         editText = EditText(context).apply {
-            hint = "Поиск"
+            hint = hintText
             visibility = GONE
             layoutParams = LayoutParams(0, LayoutParams.WRAP_CONTENT).apply {
                 weight = 1f

@@ -5,7 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.bogsnebes.tinkofffintech.model.imlp.FilmRepository
-import com.bogsnebes.tinkofffintech.ui.popular.recycler.FilmItem
+import com.bogsnebes.tinkofffintech.ui.favourites.recycler.FilmItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable

@@ -9,7 +9,7 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bogsnebes.tinkofffintech.databinding.FragmentPopularBinding
 import com.bogsnebes.tinkofffintech.ui.MainActivity
-import com.bogsnebes.tinkofffintech.ui.popular.recycler.FilmAdapter
+import com.bogsnebes.tinkofffintech.ui.favourites.recycler.FilmAdapter
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

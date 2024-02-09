@@ -13,14 +13,12 @@ import coil.size.Scale
 import coil.transform.RoundedCornersTransformation
 import com.bogsnebes.tinkofffintech.R
 
-class FilmAdapter :
-    ListAdapter<FilmItem, FilmAdapter.FilmViewHolder>(
-        FilmDiffCallback
-    ) {
+class FilmFavouritesAdapter :
+    ListAdapter<FilmItem, FilmFavouritesAdapter.FilmViewHolder>(FilmDiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilmViewHolder {
-        val view =
-            LayoutInflater.from(parent.context).inflate(R.layout.recycler_item, parent, false)
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.recycler_item, parent, false)
         return FilmViewHolder(view)
     }
 
@@ -30,10 +28,14 @@ class FilmAdapter :
     }
 
     class FilmViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val nameTextView: TextView = itemView.findViewById(R.id.nameTextView)
-        private val genreTextView: TextView = itemView.findViewById(R.id.genreTextView)
-        private val favoriteImageView: ImageView = itemView.findViewById(R.id.imageView3)
-        private val posterImageView: ImageView = itemView.findViewById(R.id.imageView2)
+        private val nameTextView: TextView =
+            itemView.findViewById(R.id.nameTextView)
+        private val genreTextView: TextView =
+            itemView.findViewById(R.id.genreTextView)
+        private val favoriteImageView: ImageView =
+            itemView.findViewById(R.id.imageView3)
+        private val posterImageView: ImageView =
+            itemView.findViewById(R.id.imageView2)
 
         fun bind(filmItem: FilmItem) {
             nameTextView.text = filmItem.film.nameRu
@@ -42,7 +44,9 @@ class FilmAdapter :
             favoriteImageView.visibility = if (filmItem.favorite) View.VISIBLE else View.GONE
 
             val radiusPx = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP, 5f, itemView.context.resources.displayMetrics
+                TypedValue.COMPLEX_UNIT_DIP,
+                5f,
+                itemView.context.resources.displayMetrics
             )
 
             posterImageView.load(filmItem.film.posterUrl) {
