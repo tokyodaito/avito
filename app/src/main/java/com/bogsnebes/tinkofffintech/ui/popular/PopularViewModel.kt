@@ -16,8 +16,8 @@ import javax.inject.Inject
 class PopularViewModel @Inject constructor(
     private val filmRepository: FilmRepository
 ) : ViewModel() {
-    private val _films = MutableLiveData<List<FilmItem>>()
-    val films: LiveData<List<FilmItem>> = _films
+    private val _films = MutableLiveData<DataState<List<FilmItem>>>()
+    val films: LiveData<DataState<List<FilmItem>>> = _films
 
     private val compositeDisposable = CompositeDisposable()
 
@@ -25,8 +25,9 @@ class PopularViewModel @Inject constructor(
         loadTopFilms()
     }
 
-    private fun loadTopFilms() {
-        var disposable = filmRepository.getTopFilms()
+    fun loadTopFilms() {
+        _films.postValue(DataState.Loading)
+        val disposable = filmRepository.getTopFilms()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .map { response ->
@@ -34,13 +35,14 @@ class PopularViewModel @Inject constructor(
                     FilmItem(
                         film,
                         false
-                    ) // Предполагается, что изначально фильмы не добавлены в избранное
+                    )
                 }
             }
             .subscribe({ filmItems ->
-                _films.value = filmItems
+                _films.value = DataState.Success(filmItems)
             }, { error ->
                 Log.e("PopularViewModel", "Error loading films: ", error)
+                _films.value = DataState.Error(error)
             })
         compositeDisposable.add(disposable)
     }

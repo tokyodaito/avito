@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">TinkoffFintech</string>
+    <string name="error">Произошла ошибка при загрузке данных, проверьте подключение к сети</string>
+    <string name="reload">Повторить</string>
+    <string name="not_found">Не найдено</string>
 </resources>
