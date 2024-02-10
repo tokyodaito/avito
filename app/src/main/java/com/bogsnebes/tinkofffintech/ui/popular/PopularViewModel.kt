@@ -24,6 +24,13 @@ class PopularViewModel @Inject constructor(
     private var currentPage = 1
     private var totalPages = Int.MAX_VALUE
 
+    private var _currentKeyword = ""
+
+    var showBack = false
+
+    val currentKeyword: String
+        get() = _currentKeyword
+
     private val compositeDisposable = CompositeDisposable()
 
     init {
@@ -76,7 +83,7 @@ class PopularViewModel @Inject constructor(
         }
 
         val disposable = action
-            .andThen(Single.fromCallable { !filmItem.favorite }) // Просто инвертируем статус, не делая повторного запроса в БД
+            .andThen(Single.fromCallable { !filmItem.favorite })
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ isNowFavorite ->
                 if (_films.value is DataState.Success<*>) {
@@ -88,6 +95,50 @@ class PopularViewModel @Inject constructor(
                 }
             }, { error ->
                 Log.e("PopularViewModel", "Error updating favorite status: ", error)
+            })
+
+        compositeDisposable.add(disposable)
+    }
+
+    fun searchFilmsByKeyword(keyword: String, isNextPage: Boolean = false) {
+        if (keyword.isBlank() && !isNextPage) {
+            return
+        }
+
+        if (!isNextPage) {
+            currentPage = 1
+            _currentKeyword = keyword
+            _films.postValue(DataState.Loading)
+        } else {
+            if (currentPage >= totalPages) return
+            currentPage++
+        }
+
+        val disposable = filmRepository.searchFilmsByKeyword(currentKeyword, currentPage)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ response ->
+                totalPages = response.pagesCount
+                val filmItems = response.films.map {
+                    FilmItem(
+                        it,
+                        false
+                    )
+                }
+                val currentState = _films.value
+                val newItems = if (isNextPage && currentState is DataState.Success) {
+                    currentState.data + filmItems
+                } else {
+                    filmItems
+                }
+                if (newItems.isNotEmpty())
+                    _films.postValue(DataState.Success(newItems))
+                else
+                    _films.postValue(DataState.NotFound)
+            }, { error ->
+                if (!isNextPage) {
+                    _films.postValue(DataState.Error(error))
+                }
             })
 
         compositeDisposable.add(disposable)

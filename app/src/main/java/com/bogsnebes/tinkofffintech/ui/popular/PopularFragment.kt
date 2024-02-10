@@ -1,6 +1,8 @@
 package com.bogsnebes.tinkofffintech.ui.popular
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -34,9 +36,11 @@ class PopularFragment : Fragment() {
         (activity as? MainActivity)?.also {
             it.showBottomNavigation(true)
             it.showProgressBar(false)
+            binding.toolBar.setupUI(viewModel.showBack, viewModel.currentKeyword)
         }
         subscribeUI(setupRecyclerFilms())
         setupUpdateButton()
+        setupSearchWatcher()
     }
 
     override fun onDestroyView() {
@@ -50,17 +54,27 @@ class PopularFragment : Fragment() {
                 is DataState.Success -> {
                     showProgressBar(false)
                     showError(false)
+                    showNotFound(false)
                     recyclerAdapter.submitList(dataState.data)
                 }
 
                 DataState.Loading -> {
                     showProgressBar(true)
                     showError(false)
+                    showNotFound(false)
                 }
 
                 is DataState.Error -> {
                     showProgressBar(false)
                     showError(true)
+                    showNotFound(false)
+                }
+
+                DataState.NotFound -> {
+                    recyclerAdapter.submitList(listOf())
+                    showProgressBar(false)
+                    showError(false)
+                    showNotFound(true)
                 }
             }
         }
@@ -83,14 +97,18 @@ class PopularFragment : Fragment() {
         binding.recyclerView.layoutManager = layoutManager
         binding.recyclerView.adapter = adapter
 
+        setupBackListener(adapter)
+
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
                 val totalItemCount = layoutManager.itemCount
                 val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
-
                 if (totalItemCount <= (lastVisibleItem + 5)) {
-                    viewModel.loadTopFilms(isNextPage = true)
+                    if (viewModel.currentKeyword.isNotBlank())
+                        viewModel.searchFilmsByKeyword(viewModel.currentKeyword, isNextPage = true)
+                    else
+                        viewModel.loadTopFilms(isNextPage = true)
                 }
             }
         })
@@ -108,6 +126,10 @@ class PopularFragment : Fragment() {
         binding.progressBar.visibility = if (show) View.VISIBLE else View.GONE
     }
 
+    private fun showNotFound(show: Boolean) {
+        binding.button2.visibility = if (show) View.VISIBLE else View.GONE
+    }
+
     private fun showError(show: Boolean) {
         binding.error.visibility = if (show) View.VISIBLE else View.GONE
     }
@@ -117,6 +139,27 @@ class PopularFragment : Fragment() {
             .replace(R.id.fragment_container_view_tag, InformationFragment.newInstance(id))
             .addToBackStack(null)
             .commit()
+    }
+
+    private fun setupSearchWatcher() {
+        binding.toolBar.setOnEditTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable) {
+                viewModel.showBack = true
+                viewModel.searchFilmsByKeyword(s.toString().trim())
+            }
+        })
+    }
+
+    private fun setupBackListener(adapter: FilmAdapter) {
+        binding.toolBar.setOnBackClickListener {
+            adapter.submitList(listOf())
+            viewModel.showBack = false
+            viewModel.loadTopFilms(false)
+        }
     }
 
     companion object {

@@ -19,7 +19,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-    private const val BASE_URL = "https://kinopoiskapiunofficial.tech/api/v2.2/"
+    private const val BASE_URL = "https://kinopoiskapiunofficial.tech/api/"
     private const val API_KEY = "e30ffed0-76ab-4dd6-b41f-4c9da2b2735b"
     private const val CACHE_SIZE = 10 * 1024 * 1024 // 10 MB
 

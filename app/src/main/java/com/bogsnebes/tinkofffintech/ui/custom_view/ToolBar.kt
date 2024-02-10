@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Typeface
 import android.text.Spannable
 import android.text.SpannableString
+import android.text.TextWatcher
 import android.text.style.StyleSpan
 import android.util.AttributeSet
 import android.view.Gravity
@@ -21,7 +22,12 @@ class ToolBar @JvmOverloads constructor(
     private val imageView: ImageView
     private val editText: EditText
 
-    private var back: Boolean = false
+    private var _back: Boolean = false
+
+    //  false - не показывать поиск
+    // true показывать
+    val back: Boolean
+        get() = _back
 
     init {
         orientation = HORIZONTAL
@@ -66,22 +72,44 @@ class ToolBar @JvmOverloads constructor(
 
         imageView = ImageView(context).apply {
             setImageResource(R.drawable.ic_search)
-            setOnClickListener {
-                if (back) {
-                    textView.visibility = GONE
-                    editText.visibility = VISIBLE
-                    this.setImageResource(R.drawable.ic_back)
-                } else {
-                    textView.visibility = VISIBLE
-                    editText.visibility = GONE
-                    this.setImageResource(R.drawable.ic_search)
-                }
-                back = !back
-            }
         }
 
         addView(textView)
         addView(imageView)
         addView(editText)
+    }
+
+    fun setOnEditTextChangedListener(listener: TextWatcher) {
+        editText.addTextChangedListener(listener)
+    }
+
+    fun setOnBackClickListener(listener: (ImageView) -> Unit) {
+        imageView.setOnClickListener {
+            if (!_back) {
+                textView.visibility = GONE
+                editText.visibility = VISIBLE
+                imageView.setImageResource(R.drawable.ic_back)
+            } else {
+                textView.visibility = VISIBLE
+                editText.visibility = GONE
+                imageView.setImageResource(R.drawable.ic_search)
+                listener(imageView)
+            }
+            _back = !_back
+        }
+    }
+
+    fun setupUI(showBack: Boolean, textOfEditText: String) {
+        _back = showBack
+        if (!_back) {
+            textView.visibility = VISIBLE
+            editText.visibility = GONE
+            imageView.setImageResource(R.drawable.ic_search)
+        } else {
+            textView.visibility = GONE
+            editText.visibility = VISIBLE
+            editText.setText(textOfEditText)
+            imageView.setImageResource(R.drawable.ic_back)
+        }
     }
 }

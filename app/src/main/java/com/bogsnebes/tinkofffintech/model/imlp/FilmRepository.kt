@@ -41,4 +41,7 @@ class FilmRepository @Inject constructor(
             Completable.fromAction { filmDao.deleteFilm(filmEntity) }
         }.subscribeOn(Schedulers.io())
 
+    fun searchFilmsByKeyword(keyword: String, page: Int = 1): Single<TopFilmsResponse> =
+        filmService.searchFilmsByKeyword(keyword, page).subscribeOn(Schedulers.io())
+
 }
