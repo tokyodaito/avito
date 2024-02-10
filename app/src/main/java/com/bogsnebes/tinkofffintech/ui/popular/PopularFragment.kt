@@ -68,7 +68,7 @@ class PopularFragment : Fragment() {
 
     private fun setupRecyclerFilms(): FilmAdapter {
         fun onItemLongClicked(film: FilmItem) {
-
+            viewModel.toggleFavoriteStatus(film)
         }
 
         val adapter =
