@@ -1,4 +1,4 @@
-package com.bogsnebes.tinkofffintech.di
+package com.bogsnebes.tinkofffintech.di.network
 
 import android.app.Application
 import com.bogsnebes.tinkofffintech.model.network.FilmService

@@ -49,7 +49,7 @@ class FilmFavouritesAdapter :
                 itemView.context.resources.displayMetrics
             )
 
-            posterImageView.load(filmItem.film.posterUrl) {
+            posterImageView.load(filmItem.film.posterUrlPreview) {
                 crossfade(true)
                 crossfade(300)
                 transformations(RoundedCornersTransformation(radiusPx))

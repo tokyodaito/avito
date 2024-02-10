@@ -11,3 +11,7 @@ data class FilmResponse(
     val countries: List<Country>?,
     val genres: List<Genre>?,
 )
+
+data class Country(
+    val country: String
+)

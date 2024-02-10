@@ -11,8 +11,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bogsnebes.tinkofffintech.R
 import com.bogsnebes.tinkofffintech.databinding.FragmentPopularBinding
 import com.bogsnebes.tinkofffintech.ui.MainActivity
-import com.bogsnebes.tinkofffintech.ui.favourites.recycler.FilmAdapter
 import com.bogsnebes.tinkofffintech.ui.information.InformationFragment
+import com.bogsnebes.tinkofffintech.ui.popular.recycler.FilmAdapter
+import com.bogsnebes.tinkofffintech.ui.popular.recycler.FilmItem
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -66,9 +67,17 @@ class PopularFragment : Fragment() {
     }
 
     private fun setupRecyclerFilms(): FilmAdapter {
-        val adapter = FilmAdapter { id ->
-            openInformationFragment(id)
+        fun onItemLongClicked(film: FilmItem) {
+
         }
+
+        val adapter =
+            FilmAdapter(
+                onItemClicked = { id -> openInformationFragment(id) },
+                onItemLongClicked = { filmItem ->
+                    onItemLongClicked(filmItem)
+                })
+
 
         val layoutManager = LinearLayoutManager(context)
         binding.recyclerView.layoutManager = layoutManager
