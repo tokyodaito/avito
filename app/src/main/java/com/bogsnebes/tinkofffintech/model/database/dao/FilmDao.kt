@@ -7,6 +7,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.bogsnebes.tinkofffintech.model.database.dto.FilmEntity
 import com.bogsnebes.tinkofffintech.model.database.dto.FilmResponseEntity
+import io.reactivex.Flowable
 import io.reactivex.Single
 
 @Dao
@@ -29,5 +30,10 @@ interface FilmDao {
     @Delete
     fun deleteFilm(film: FilmEntity)
 
+    @Query("SELECT * FROM FilmEntity")
+    fun getAllFavouriteFilms(): Flowable<List<FilmEntity>>
+
+    @Query("SELECT * FROM FilmEntity WHERE nameRu LIKE :keyword || '%' OR nameEn LIKE :keyword || '%'")
+    fun searchFilmsByKeyword(keyword: String): Flowable<List<FilmEntity>>
 }
 

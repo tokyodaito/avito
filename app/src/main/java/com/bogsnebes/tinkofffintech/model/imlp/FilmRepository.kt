@@ -6,7 +6,9 @@ import com.bogsnebes.tinkofffintech.model.network.FilmService
 import com.bogsnebes.tinkofffintech.model.network.response.Film
 import com.bogsnebes.tinkofffintech.model.network.response.FilmResponse
 import com.bogsnebes.tinkofffintech.model.network.response.TopFilmsResponse
+import com.bogsnebes.tinkofffintech.ui.favourites.recycler.FilmItem
 import io.reactivex.Completable
+import io.reactivex.Flowable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
@@ -44,4 +46,39 @@ class FilmRepository @Inject constructor(
     fun searchFilmsByKeyword(keyword: String, page: Int = 1): Single<TopFilmsResponse> =
         filmService.searchFilmsByKeyword(keyword, page).subscribeOn(Schedulers.io())
 
+    fun searchFilmsInDatabaseByKeyword(keyword: String): Flowable<List<FilmItem>> =
+        filmDao.searchFilmsByKeyword(keyword).map { entities ->
+            entities.map { entity ->
+                FilmItem(
+                    film = Film(
+                        filmId = entity.filmId,
+                        nameRu = entity.nameRu,
+                        nameEn = entity.nameEn,
+                        year = entity.year,
+                        genres = listOf(),
+                        posterUrlPreview = entity.posterUrlPreview
+                    ),
+                    favorite = true
+                )
+            }
+        }.subscribeOn(Schedulers.io())
+
+    fun getFavouriteFilms(): Flowable<List<FilmItem>> =
+        filmDao.getAllFavouriteFilms()
+            .map { entities ->
+                entities.map { entity ->
+                    FilmItem(
+                        film = Film(
+                            filmId = entity.filmId,
+                            nameRu = entity.nameRu,
+                            nameEn = entity.nameEn,
+                            year = entity.year,
+                            genres = listOf(),
+                            posterUrlPreview = entity.posterUrlPreview
+                        ),
+                        favorite = true
+                    )
+                }
+            }
+            .subscribeOn(Schedulers.io())
 }
