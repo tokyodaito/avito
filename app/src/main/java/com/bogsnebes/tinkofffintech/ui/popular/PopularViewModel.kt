@@ -19,33 +19,51 @@ class PopularViewModel @Inject constructor(
     private val _films = MutableLiveData<DataState<List<FilmItem>>>()
     val films: LiveData<DataState<List<FilmItem>>> = _films
 
+    private var currentPage = 1
+    private var totalPages = Int.MAX_VALUE
+
     private val compositeDisposable = CompositeDisposable()
 
     init {
         loadTopFilms()
     }
 
-    fun loadTopFilms() {
-        _films.postValue(DataState.Loading)
-        val disposable = filmRepository.getTopFilms()
+    fun loadTopFilms(isNextPage: Boolean = false) {
+        if (isNextPage) {
+            if (currentPage >= totalPages) return
+            currentPage++
+        } else {
+            currentPage = 1
+            _films.postValue(DataState.Loading)
+        }
+
+        val disposable = filmRepository.getTopFilms(currentPage)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .map { response ->
+                totalPages = response.pagesCount
                 response.films.map { film ->
-                    FilmItem(
-                        film,
-                        false
-                    )
+                    FilmItem(film, false)
                 }
             }
             .subscribe({ filmItems ->
-                _films.value = DataState.Success(filmItems)
+                val currentState = _films.value
+                val newItems = if (isNextPage && currentState is DataState.Success) {
+                    currentState.data + filmItems
+                } else {
+                    filmItems
+                }
+                _films.postValue(DataState.Success(newItems))
             }, { error ->
+                if (!isNextPage) {
+                    _films.postValue(DataState.Error(error))
+                }
                 Log.e("PopularViewModel", "Error loading films: ", error)
-                _films.value = DataState.Error(error)
             })
+
         compositeDisposable.add(disposable)
     }
+
 
     override fun onCleared() {
         super.onCleared()

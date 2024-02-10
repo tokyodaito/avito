@@ -10,8 +10,8 @@ import javax.inject.Inject
 class FilmRepository @Inject constructor(
     private val filmService: FilmService
 ) {
-    fun getTopFilms(): Single<TopFilmsResponse> =
-        filmService.getTopFilms("TOP_100_POPULAR_FILMS").subscribeOn(
+    fun getTopFilms(page: Int = 1): Single<TopFilmsResponse> =
+        filmService.getTopFilms("TOP_100_POPULAR_FILMS", page).subscribeOn(
             Schedulers.io()
         )
 

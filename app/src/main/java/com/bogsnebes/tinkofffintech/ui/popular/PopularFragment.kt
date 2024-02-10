@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bogsnebes.tinkofffintech.R
 import com.bogsnebes.tinkofffintech.databinding.FragmentPopularBinding
 import com.bogsnebes.tinkofffintech.ui.MainActivity
@@ -33,7 +34,7 @@ class PopularFragment : Fragment() {
             it.showBottomNavigation(true)
             it.showProgressBar(false)
         }
-        subscribeUI()
+        subscribeUI(setupRecyclerFilms())
         setupUpdateButton()
     }
 
@@ -42,13 +43,13 @@ class PopularFragment : Fragment() {
         _binding = null
     }
 
-    private fun subscribeUI() {
+    private fun subscribeUI(recyclerAdapter: FilmAdapter) {
         viewModel.films.observe(viewLifecycleOwner) { dataState ->
             when (dataState) {
                 is DataState.Success -> {
                     showProgressBar(false)
                     showError(false)
-                    setupRecyclerFilms().submitList(dataState.data)
+                    recyclerAdapter.submitList(dataState.data)
                 }
 
                 DataState.Loading -> {
@@ -69,10 +70,21 @@ class PopularFragment : Fragment() {
             openInformationFragment(id)
         }
 
-        binding.recyclerView.apply {
-            layoutManager = LinearLayoutManager(context)
-            this.adapter = adapter
-        }
+        val layoutManager = LinearLayoutManager(context)
+        binding.recyclerView.layoutManager = layoutManager
+        binding.recyclerView.adapter = adapter
+
+        binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                val totalItemCount = layoutManager.itemCount
+                val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
+
+                if (totalItemCount <= (lastVisibleItem + 5)) {
+                    viewModel.loadTopFilms(isNextPage = true)
+                }
+            }
+        })
 
         return adapter
     }
