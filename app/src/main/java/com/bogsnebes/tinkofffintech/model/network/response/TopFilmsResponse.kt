@@ -1,12 +1,12 @@
-package com.bogsnebes.tinkofffintech.model.network
+package com.bogsnebes.tinkofffintech.model.network.response
 
-data class FilmResponse(
+data class TopFilmsResponse(
     val pagesCount: Int,
     val films: List<Film>
 )
 
 data class Film(
-    val filmId: Long,
+    val filmId: Int,
     val nameRu: String?,
     val nameEn: String?,
     val year: String,

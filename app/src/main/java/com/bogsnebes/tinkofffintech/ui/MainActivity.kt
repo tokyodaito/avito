@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.bogsnebes.tinkofffintech.R
 import com.bogsnebes.tinkofffintech.databinding.ActivityMainBinding
 import com.bogsnebes.tinkofffintech.ui.favourites.FavouritesFragment
+import com.bogsnebes.tinkofffintech.ui.information.InformationFragment
 import com.bogsnebes.tinkofffintech.ui.popular.PopularFragment
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -21,6 +22,9 @@ class MainActivity : AppCompatActivity() {
         openPopularFragment()
         setupButtonOpenPopular()
         setupButtonOpenFavourites()
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container_view_tag, InformationFragment.newInstance(321))
+            .commit()
     }
 
     private fun openPopularFragment() {

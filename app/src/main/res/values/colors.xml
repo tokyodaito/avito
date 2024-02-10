@@ -5,4 +5,7 @@
 
     <!--  error_message  -->
     <color name="error">#0094FF</color>
+
+    <!--  fragment_information  -->
+    <color name="description">#74757C</color>
 </resources>

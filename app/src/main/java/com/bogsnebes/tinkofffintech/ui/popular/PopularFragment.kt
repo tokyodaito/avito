@@ -7,9 +7,11 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bogsnebes.tinkofffintech.R
 import com.bogsnebes.tinkofffintech.databinding.FragmentPopularBinding
 import com.bogsnebes.tinkofffintech.ui.MainActivity
 import com.bogsnebes.tinkofffintech.ui.favourites.recycler.FilmAdapter
+import com.bogsnebes.tinkofffintech.ui.information.InformationFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -60,7 +62,9 @@ class PopularFragment : Fragment() {
     }
 
     private fun setupRecyclerFilms(): FilmAdapter {
-        val adapter = FilmAdapter()
+        val adapter = FilmAdapter { id ->
+            openInformationFragment(id)
+        }
 
         binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
@@ -82,6 +86,13 @@ class PopularFragment : Fragment() {
 
     private fun showError(show: Boolean) {
         binding.error.visibility = if (show) View.VISIBLE else View.GONE
+    }
+
+    private fun openInformationFragment(id: Int) {
+        requireActivity().supportFragmentManager.beginTransaction()
+            .replace(R.id.fragment_container_view_tag, InformationFragment.newInstance(id))
+            .addToBackStack(null)
+            .commit()
     }
 
     companion object {

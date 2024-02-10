@@ -13,7 +13,9 @@ import coil.size.Scale
 import coil.transform.RoundedCornersTransformation
 import com.bogsnebes.tinkofffintech.R
 
-class FilmAdapter :
+class FilmAdapter(
+    private val onItemClicked: (Int) -> Unit
+) :
     ListAdapter<FilmItem, FilmAdapter.FilmViewHolder>(
         FilmDiffCallback
     ) {
@@ -26,7 +28,7 @@ class FilmAdapter :
 
     override fun onBindViewHolder(holder: FilmViewHolder, position: Int) {
         val filmItem = getItem(position)
-        holder.bind(filmItem)
+        holder.bind(filmItem, onItemClicked)
     }
 
     class FilmViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -35,7 +37,7 @@ class FilmAdapter :
         private val favoriteImageView: ImageView = itemView.findViewById(R.id.imageView3)
         private val posterImageView: ImageView = itemView.findViewById(R.id.imageView2)
 
-        fun bind(filmItem: FilmItem) {
+        fun bind(filmItem: FilmItem, onItemClicked: (Int) -> Unit) {
             nameTextView.text = filmItem.film.nameRu
             genreTextView.text =
                 "${filmItem.film.genres.joinToString { it.genre }} (${filmItem.film.year})"
@@ -45,12 +47,16 @@ class FilmAdapter :
                 TypedValue.COMPLEX_UNIT_DIP, 5f, itemView.context.resources.displayMetrics
             )
 
-            posterImageView.load(filmItem.film.posterUrl) {
+            posterImageView.load(filmItem.film.posterUrlPreview) {
                 crossfade(true)
                 crossfade(300)
                 transformations(RoundedCornersTransformation(radiusPx))
                 error(R.drawable.ic_error)
                 scale(Scale.FILL)
+            }
+
+            itemView.setOnClickListener {
+                onItemClicked(filmItem.film.filmId)
             }
         }
     }
