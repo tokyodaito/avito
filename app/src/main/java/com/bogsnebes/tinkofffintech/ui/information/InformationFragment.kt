@@ -1,6 +1,10 @@
 package com.bogsnebes.tinkofffintech.ui.information
 
+import android.graphics.Typeface
 import android.os.Bundle
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.StyleSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,11 +31,15 @@ class InformationFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (activity as? MainActivity)?.showProgressBar(false)
+        (activity as? MainActivity)?.also {
+            it.showProgressBar(false)
+            it.showBottomNavigation(false)
+        }
         arguments?.getInt(ARG_FILM_ID)?.let { id ->
             viewModel.loadFilmInfo(id)
         }
         subscribeUI()
+        setupBackButton()
     }
 
     override fun onDestroyView() {
@@ -67,12 +75,48 @@ class InformationFragment : Fragment() {
 
         binding.textView2.text = film.nameRu
         binding.textView3.text = film.description
-        binding.textView4.text = "Жанры: ${film.genres}"
-        binding.textView4.text = "Страны: ${film.countries}"
+        binding.textView4.text =
+            createGenresText(film.genres?.joinToString(separator = ", ") { it.genre }
+                ?: "Нет данных")
+        binding.textView5.text =
+            createCountriesText(film.countries?.joinToString(separator = ", ") { it.country }
+                ?: "Нет данных")
+    }
+
+    private fun createGenresText(genres: String): SpannableString {
+        val genresText = "Жанры: $genres"
+
+        return SpannableString(genresText).apply {
+            setSpan(
+                StyleSpan(Typeface.BOLD),
+                0,
+                "Жанры:".length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
+    }
+
+    private fun createCountriesText(countries: String): SpannableString {
+        val countriesText = "Страны: $countries"
+
+        return SpannableString(countriesText).apply {
+            setSpan(
+                StyleSpan(Typeface.BOLD),
+                0,
+                "Страны:".length,
+                Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+        }
     }
 
     private fun showProgressBar(show: Boolean) {
         binding.progressBar.visibility = if (show) View.VISIBLE else View.GONE
+    }
+
+    private fun setupBackButton() {
+        binding.imageView4.setOnClickListener {
+            requireActivity().supportFragmentManager.popBackStack()
+        }
     }
 
     companion object {

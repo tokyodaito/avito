@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.bogsnebes.tinkofffintech.R
 import com.bogsnebes.tinkofffintech.databinding.ActivityMainBinding
 import com.bogsnebes.tinkofffintech.ui.favourites.FavouritesFragment
-import com.bogsnebes.tinkofffintech.ui.information.InformationFragment
 import com.bogsnebes.tinkofffintech.ui.popular.PopularFragment
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -18,13 +17,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         _binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        openPopularFragment()
+        if (savedInstanceState == null) {
+            openPopularFragment()
+        }
         setupButtonOpenPopular()
         setupButtonOpenFavourites()
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container_view_tag, InformationFragment.newInstance(321))
-            .commit()
     }
 
     private fun openPopularFragment() {
@@ -56,6 +53,11 @@ class MainActivity : AppCompatActivity() {
     fun showProgressBar(show: Boolean) {
         binding.fragmentContainerViewTag.visibility = if (show) View.GONE else View.VISIBLE
         binding.progressBar.visibility = if (show) View.VISIBLE else View.GONE
+    }
+
+    fun showBottomNavigation(show: Boolean) {
+        binding.bottomNavigation.visibility = if (show) View.VISIBLE else View.GONE
+        binding.guideline.setGuidelinePercent(if (show) 0.92f else 1f)
     }
 
     override fun onDestroy() {

@@ -29,7 +29,10 @@ class PopularFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (activity as? MainActivity)?.showProgressBar(false)
+        (activity as? MainActivity)?.also {
+            it.showBottomNavigation(true)
+            it.showProgressBar(false)
+        }
         subscribeUI()
         setupUpdateButton()
     }

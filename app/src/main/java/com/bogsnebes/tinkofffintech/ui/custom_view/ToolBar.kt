@@ -1,6 +1,10 @@
 package com.bogsnebes.tinkofffintech.ui.custom_view
 
 import android.content.Context
+import android.graphics.Typeface
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.StyleSpan
 import android.util.AttributeSet
 import android.view.Gravity
 import android.widget.EditText
@@ -36,7 +40,14 @@ class ToolBar @JvmOverloads constructor(
         typedArray.recycle()
 
         textView = TextView(context).apply {
-            text = titleText
+            text = SpannableString(titleText).apply {
+                setSpan(
+                    StyleSpan(Typeface.BOLD),
+                    0,
+                    titleText.length,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
             textSize = titleTextSize / resources.displayMetrics.scaledDensity
             setTextColor(titleTextColor)
             layoutParams = LayoutParams(0, LayoutParams.WRAP_CONTENT).apply {
