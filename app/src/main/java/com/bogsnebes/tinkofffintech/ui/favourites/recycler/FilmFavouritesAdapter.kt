@@ -13,7 +13,10 @@ import coil.size.Scale
 import coil.transform.RoundedCornersTransformation
 import com.bogsnebes.tinkofffintech.R
 
-class FilmFavouritesAdapter :
+class FilmFavouritesAdapter(
+    private val onItemClicked: (Int) -> Unit,
+    private val onItemLongClicked: (FilmItem) -> Unit
+) :
     ListAdapter<FilmItem, FilmFavouritesAdapter.FilmViewHolder>(FilmDiffCallback) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FilmViewHolder {
@@ -24,7 +27,7 @@ class FilmFavouritesAdapter :
 
     override fun onBindViewHolder(holder: FilmViewHolder, position: Int) {
         val filmItem = getItem(position)
-        holder.bind(filmItem)
+        holder.bind(filmItem, onItemClicked, onItemLongClicked)
     }
 
     class FilmViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -37,7 +40,11 @@ class FilmFavouritesAdapter :
         private val posterImageView: ImageView =
             itemView.findViewById(R.id.imageView2)
 
-        fun bind(filmItem: FilmItem) {
+        fun bind(
+            filmItem: FilmItem,
+            onItemClicked: (Int) -> Unit,
+            onItemLongClicked: (FilmItem) -> Unit
+        ) {
             nameTextView.text = filmItem.film.nameRu
             genreTextView.text =
                 "${filmItem.film.genres.joinToString { it.genre }} (${filmItem.film.year})"
@@ -55,6 +62,28 @@ class FilmFavouritesAdapter :
                 transformations(RoundedCornersTransformation(radiusPx))
                 error(R.drawable.ic_error)
                 scale(Scale.FILL)
+            }
+
+            setupItemViewListener(filmItem, onItemClicked, onItemLongClicked)
+        }
+
+        private fun setupItemViewListener(
+            filmItem: FilmItem,
+            onItemClicked: (Int) -> Unit,
+            onItemLongClicked: (FilmItem) -> Unit
+        ) {
+            itemView.setOnClickListener {
+                it.animate().scaleX(0.85f).scaleY(0.85f).setDuration(150).withEndAction {
+                    it.animate().scaleX(1f).scaleY(1f).setDuration(150).start()
+                    onItemClicked(filmItem.film.filmId)
+                }.start()
+            }
+
+            itemView.setOnLongClickListener {
+                it.animate().scaleX(0.95f).scaleY(0.95f).setDuration(200).withEndAction {
+                    onItemLongClicked(filmItem)
+                }.start()
+                true
             }
         }
     }

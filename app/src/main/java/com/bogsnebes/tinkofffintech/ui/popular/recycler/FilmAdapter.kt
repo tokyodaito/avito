@@ -85,8 +85,9 @@ class FilmAdapter(
             itemView.setOnLongClickListener {
                 it.animate().scaleX(0.95f).scaleY(0.95f).setDuration(200).withEndAction {
                     onItemLongClicked(filmItem)
+                    filmItem.favorite = !filmItem.favorite
                     favoriteImageView.visibility =
-                        if (!filmItem.favorite) View.VISIBLE else View.GONE
+                        if (filmItem.favorite) View.VISIBLE else View.GONE
                 }.start()
                 true
             }

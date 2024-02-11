@@ -30,26 +30,45 @@ class MainActivity : AppCompatActivity() {
 
     private fun openPopularFragment() {
         showProgressBar(true)
+        if (isLandscape())
+            if (existInFragmentContainerViewTag2())
+                supportFragmentManager.beginTransaction()
+                    .remove(supportFragmentManager.findFragmentById(R.id.fragment_container_view_tag2) as InformationFragment)
+                    .commit()
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container_view_tag, PopularFragment.newInstance())
-            .commit()
+            .commitAllowingStateLoss()
     }
 
     private fun openFavouritesFragment() {
         showProgressBar(true)
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container_view_tag, FavouritesFragment.newInstance())
-            .commit()
+            .commitAllowingStateLoss()
     }
 
     private fun setupButtonOpenPopular() {
         binding.appCompatButton2.setOnClickListener {
+            if (supportFragmentManager.findFragmentById(R.id.fragment_container_view_tag) !is PopularFragment)
+                if (isLandscape())
+                    if (existInFragmentContainerViewTag2())
+                        supportFragmentManager.beginTransaction()
+                            .remove(supportFragmentManager.findFragmentById(R.id.fragment_container_view_tag2) as InformationFragment)
+                            .commitNow()
+            setupLandscapeListener()
             openPopularFragment()
         }
     }
 
     private fun setupButtonOpenFavourites() {
         binding.appCompatButton.setOnClickListener {
+            if (supportFragmentManager.findFragmentById(R.id.fragment_container_view_tag) !is FavouritesFragment)
+                if (isLandscape())
+                    if (existInFragmentContainerViewTag2())
+                        supportFragmentManager.beginTransaction()
+                            .remove(supportFragmentManager.findFragmentById(R.id.fragment_container_view_tag2) as InformationFragment)
+                            .commitNow()
+            setupLandscapeListener()
             openFavouritesFragment()
         }
     }
@@ -65,8 +84,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun setupLandscapeListener() {
-        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-        if (isLandscape) {
+        if (isLandscape()) {
             val fragmentInContainer1 =
                 supportFragmentManager.findFragmentById(R.id.fragment_container_view_tag)
             if (fragmentInContainer1 is InformationFragment) {
@@ -82,6 +100,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun existInFragmentContainerViewTag2(): Boolean {
         return supportFragmentManager.findFragmentById(R.id.fragment_container_view_tag2) != null
+    }
+
+    private fun isLandscape(): Boolean {
+        return resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
     }
 
 

@@ -35,7 +35,7 @@ class InformationFragment : Fragment() {
         (activity as? MainActivity)?.also {
             it.showProgressBar(false)
             if (checkLandscape())
-                it.showBottomNavigation(false)
+                it.showBottomNavigation(true)
             it.setupLandscapeListener()
         }
         arguments?.getInt(ARG_FILM_ID)?.let { id ->
@@ -44,6 +44,7 @@ class InformationFragment : Fragment() {
         subscribeUI()
         setupBackButton()
         setupLandscapeSettings()
+        setupReloadButton()
     }
 
     override fun onDestroyView() {
@@ -56,14 +57,17 @@ class InformationFragment : Fragment() {
             when (dataState) {
                 is DataState.Error -> {
                     showProgressBar(false)
+                    showError(true)
                 }
 
                 DataState.Loading -> {
                     showProgressBar(true)
+                    showError(false)
                 }
 
                 is DataState.Success -> {
                     showProgressBar(false)
+                    showError(false)
                     setupFilmInformation(dataState.data)
                 }
             }
@@ -85,6 +89,14 @@ class InformationFragment : Fragment() {
         binding.textView5.text =
             createCountriesText(film.countries?.joinToString(separator = ", ") { it.country }
                 ?: "Нет данных")
+    }
+
+    private fun setupReloadButton() {
+        binding.button.setOnClickListener {
+            arguments?.getInt(ARG_FILM_ID)?.let { id ->
+                viewModel.loadFilmInfo(id)
+            }
+        }
     }
 
     private fun createGenresText(genres: String): SpannableString {
@@ -115,6 +127,10 @@ class InformationFragment : Fragment() {
 
     private fun showProgressBar(show: Boolean) {
         binding.progressBar.visibility = if (show) View.VISIBLE else View.GONE
+    }
+
+    private fun showError(show: Boolean) {
+        binding.error.visibility = if (show) View.VISIBLE else View.GONE
     }
 
     private fun setupBackButton() {

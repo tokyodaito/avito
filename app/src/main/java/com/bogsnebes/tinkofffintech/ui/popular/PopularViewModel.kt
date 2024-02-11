@@ -26,6 +26,8 @@ class PopularViewModel @Inject constructor(
 
     private var _currentKeyword = ""
 
+    private var updateList: List<FilmItem> = listOf()
+
     var showBack = false
 
     val currentKeyword: String
@@ -60,11 +62,16 @@ class PopularViewModel @Inject constructor(
             .subscribe({ filmItems ->
                 val currentState = _films.value
                 val newItems = if (isNextPage && currentState is DataState.Success) {
-                    currentState.data + filmItems
+                    if (updateList.isEmpty())
+                        currentState.data + filmItems
+                    else {
+                        updateList + filmItems
+                    }
                 } else {
                     filmItems
                 }
                 _films.postValue(DataState.Success(newItems))
+                updateList = listOf()
             }, { error ->
                 if (!isNextPage) {
                     _films.postValue(DataState.Error(error))
@@ -91,7 +98,7 @@ class PopularViewModel @Inject constructor(
                     val updatedList = currentList.map { item ->
                         if (item.film.filmId == filmItem.film.filmId) item.copy(favorite = isNowFavorite) else item
                     }
-                    _films.postValue(DataState.Success(updatedList))
+                    updateList = updatedList
                 }
             }, { error ->
                 Log.e("PopularViewModel", "Error updating favorite status: ", error)

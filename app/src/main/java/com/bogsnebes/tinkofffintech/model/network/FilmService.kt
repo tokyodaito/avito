@@ -8,6 +8,7 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface FilmService {
+
     @GET("v2.2/films/top")
     fun getTopFilms(@Query("type") type: String, @Query("page") page: Int): Single<TopFilmsResponse>
 

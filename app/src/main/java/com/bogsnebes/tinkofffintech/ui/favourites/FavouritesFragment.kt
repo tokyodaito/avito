@@ -1,5 +1,6 @@
 package com.bogsnebes.tinkofffintech.ui.favourites
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -9,9 +10,12 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bogsnebes.tinkofffintech.R
 import com.bogsnebes.tinkofffintech.databinding.FragmentFavouritesBinding
 import com.bogsnebes.tinkofffintech.ui.MainActivity
 import com.bogsnebes.tinkofffintech.ui.favourites.recycler.FilmFavouritesAdapter
+import com.bogsnebes.tinkofffintech.ui.favourites.recycler.FilmItem
+import com.bogsnebes.tinkofffintech.ui.information.InformationFragment
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -76,8 +80,16 @@ class FavouritesFragment : Fragment() {
     }
 
     private fun setupRecyclerFilms(): FilmFavouritesAdapter {
+        fun onItemLongClicked(film: FilmItem) {
+            viewModel.toggleFavoriteStatus(film)
+        }
+
         val adapter =
-            FilmFavouritesAdapter()
+            FilmFavouritesAdapter(
+                onItemClicked = { id -> openInformationFragment(id) },
+                onItemLongClicked = { filmItem ->
+                    onItemLongClicked(filmItem)
+                })
 
 
         val layoutManager = LinearLayoutManager(context)
@@ -87,6 +99,24 @@ class FavouritesFragment : Fragment() {
         setupBackListener(adapter)
 
         return adapter
+    }
+
+    private fun openInformationFragment(id: Int) {
+        val fragmentManager = requireActivity().supportFragmentManager
+        val fragmentTransaction = fragmentManager.beginTransaction()
+
+        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+        val containerId = if (isLandscape) {
+            R.id.fragment_container_view_tag2
+        } else {
+            R.id.fragment_container_view_tag
+        }
+
+        fragmentTransaction.replace(containerId, InformationFragment.newInstance(id))
+        if (!isLandscape)
+            fragmentTransaction.addToBackStack(null)
+        fragmentTransaction.commit()
     }
 
     private fun setupUpdateButton() {
