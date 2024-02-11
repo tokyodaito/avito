@@ -1,7 +1,9 @@
 package com.bogsnebes.tinkofffintech.model.imlp
 
+import android.util.Log
 import com.bogsnebes.tinkofffintech.model.database.dao.FilmDao
 import com.bogsnebes.tinkofffintech.model.database.dto.FilmEntity
+import com.bogsnebes.tinkofffintech.model.database.dto.FilmResponseEntity
 import com.bogsnebes.tinkofffintech.model.network.FilmService
 import com.bogsnebes.tinkofffintech.model.network.response.Film
 import com.bogsnebes.tinkofffintech.model.network.response.FilmResponse
@@ -27,19 +29,64 @@ class FilmRepository @Inject constructor(
             Schedulers.io()
         )
 
-    fun saveFilmAsFavorite(film: Film): Completable {
-        val filmEntity =
-            FilmEntity(
-                film.filmId,
-                film.nameRu,
-                film.nameEn,
-                film.year,
-                film.posterUrlPreview,
-                film.genres
+    private fun getAndConvertFilmInfo(filmId: Int): Completable =
+        getFilmInfo(filmId).flatMapCompletable { filmResponse ->
+            val filmResponseEntity = FilmResponseEntity(
+                kinopoiskId = filmResponse.kinopoiskId
+                    ?: 95323,
+                nameRu = filmResponse.nameRu,
+                nameEn = filmResponse.nameEn,
+                nameOriginal = filmResponse.nameOriginal,
+                posterUrl = filmResponse.posterUrl,
+                description = filmResponse.description,
+                shortDescription = filmResponse.shortDescription
             )
-        return Completable.fromAction { filmDao.insertFilm(filmEntity) }
+            Log.d(
+                "FilmRepository",
+                "Saving film response info for ID: ${filmResponseEntity.kinopoiskId}"
+            )
+            saveFilmResponseInfo(filmResponseEntity)
+        }
+
+    private fun saveFilmResponseInfo(filmResponseEntity: FilmResponseEntity): Completable =
+        Completable.fromAction {
+            Log.d("FilmRepository", "Inserting film response: ${filmResponseEntity.kinopoiskId}")
+            filmDao.insertFilmResponse(filmResponseEntity)
+        }.doOnError { error ->
+            Log.e("FilmRepository", "Error inserting film response: ${error.localizedMessage}")
+        }
+
+    fun saveFilmAsFavorite(film: Film): Completable {
+        val filmEntity = FilmEntity(
+            film.filmId,
+            film.nameRu,
+            film.nameEn,
+            film.year,
+            film.posterUrlPreview,
+            film.genres
+        )
+
+        Log.d("FilmRepository", "Starting to save film as favorite: ${filmEntity.filmId}")
+
+        return getAndConvertFilmInfo(film.filmId)
+            .andThen(saveFilm(filmEntity))
+            .doOnComplete {
+                Log.d("FilmRepository", "Film saved as favorite successfully: ${filmEntity.filmId}")
+            }
+            .doOnError { error ->
+                Log.e("FilmRepository", "Error saving film as favorite: ${error.localizedMessage}")
+            }
             .subscribeOn(Schedulers.io())
     }
+
+    private fun saveFilm(filmEntity: FilmEntity): Completable =
+        Completable.fromAction {
+            Log.d("FilmRepository", "Inserting film: ${filmEntity.filmId}")
+            filmDao.insertFilm(filmEntity)
+        }.doOnError { error ->
+            Log.e("FilmRepository", "Error inserting film: ${error.localizedMessage}")
+        }
+
 
     fun isFilmFavorite(id: Int): Single<Boolean> =
         filmDao.isFavorite(id)
