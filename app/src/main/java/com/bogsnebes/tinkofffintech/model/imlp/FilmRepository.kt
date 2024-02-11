@@ -29,7 +29,14 @@ class FilmRepository @Inject constructor(
 
     fun saveFilmAsFavorite(film: Film): Completable {
         val filmEntity =
-            FilmEntity(film.filmId, film.nameRu, film.nameEn, film.year, film.posterUrlPreview)
+            FilmEntity(
+                film.filmId,
+                film.nameRu,
+                film.nameEn,
+                film.year,
+                film.posterUrlPreview,
+                film.genres
+            )
         return Completable.fromAction { filmDao.insertFilm(filmEntity) }
             .subscribeOn(Schedulers.io())
     }
@@ -55,7 +62,7 @@ class FilmRepository @Inject constructor(
                         nameRu = entity.nameRu,
                         nameEn = entity.nameEn,
                         year = entity.year,
-                        genres = listOf(),
+                        genres = entity.genres,
                         posterUrlPreview = entity.posterUrlPreview
                     ),
                     favorite = true
@@ -73,7 +80,7 @@ class FilmRepository @Inject constructor(
                             nameRu = entity.nameRu,
                             nameEn = entity.nameEn,
                             year = entity.year,
-                            genres = listOf(),
+                            genres = entity.genres,
                             posterUrlPreview = entity.posterUrlPreview
                         ),
                         favorite = true
