@@ -1,11 +1,13 @@
 package com.bogsnebes.tinkofffintech.ui
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.bogsnebes.tinkofffintech.R
 import com.bogsnebes.tinkofffintech.databinding.ActivityMainBinding
 import com.bogsnebes.tinkofffintech.ui.favourites.FavouritesFragment
+import com.bogsnebes.tinkofffintech.ui.information.InformationFragment
 import com.bogsnebes.tinkofffintech.ui.popular.PopularFragment
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -20,6 +22,8 @@ class MainActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             openPopularFragment()
         }
+
+        setupLandscapeListener()
         setupButtonOpenPopular()
         setupButtonOpenFavourites()
     }
@@ -59,6 +63,27 @@ class MainActivity : AppCompatActivity() {
         binding.bottomNavigation.visibility = if (show) View.VISIBLE else View.GONE
         binding.guideline.setGuidelinePercent(if (show) 0.92f else 1f)
     }
+
+    fun setupLandscapeListener() {
+        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        if (isLandscape) {
+            val fragmentInContainer1 =
+                supportFragmentManager.findFragmentById(R.id.fragment_container_view_tag)
+            if (fragmentInContainer1 is InformationFragment) {
+                openPopularFragment()
+            }
+            if (existInFragmentContainerViewTag2()) {
+                binding.fragmentContainerViewTag2?.visibility = View.VISIBLE
+            } else {
+                binding.fragmentContainerViewTag2?.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun existInFragmentContainerViewTag2(): Boolean {
+        return supportFragmentManager.findFragmentById(R.id.fragment_container_view_tag2) != null
+    }
+
 
     override fun onDestroy() {
         super.onDestroy()

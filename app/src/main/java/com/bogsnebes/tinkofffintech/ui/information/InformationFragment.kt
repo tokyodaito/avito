@@ -1,5 +1,6 @@
 package com.bogsnebes.tinkofffintech.ui.information
 
+import android.content.res.Configuration
 import android.graphics.Typeface
 import android.os.Bundle
 import android.text.Spannable
@@ -33,13 +34,16 @@ class InformationFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         (activity as? MainActivity)?.also {
             it.showProgressBar(false)
-            it.showBottomNavigation(false)
+            if (checkLandscape())
+                it.showBottomNavigation(false)
+            it.setupLandscapeListener()
         }
         arguments?.getInt(ARG_FILM_ID)?.let { id ->
             viewModel.loadFilmInfo(id)
         }
         subscribeUI()
         setupBackButton()
+        setupLandscapeSettings()
     }
 
     override fun onDestroyView() {
@@ -119,8 +123,20 @@ class InformationFragment : Fragment() {
         }
     }
 
+    private fun setupLandscapeSettings() {
+        if (checkLandscape()) {
+            binding.imageView4.visibility = View.GONE
+        } else {
+            binding.imageView4.visibility = View.VISIBLE
+        }
+    }
+
+    private fun checkLandscape(): Boolean {
+        return resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    }
+
     companion object {
-        private const val ARG_FILM_ID = "film_id"
+        const val ARG_FILM_ID = "film_id"
 
         fun newInstance(id: Int): InformationFragment =
             InformationFragment().apply {
