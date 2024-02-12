@@ -12,6 +12,8 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.PublishSubject
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,6 +27,7 @@ class PopularViewModel @Inject constructor(
     private var totalPages = Int.MAX_VALUE
 
     private var _currentKeyword = ""
+    private val searchSubject = PublishSubject.create<String>()
 
     private var updateList: List<FilmItem> = listOf()
 
@@ -37,6 +40,7 @@ class PopularViewModel @Inject constructor(
 
     init {
         loadTopFilms()
+        setupSearch()
     }
 
     fun loadTopFilms(isNextPage: Boolean = false) {
@@ -107,6 +111,17 @@ class PopularViewModel @Inject constructor(
         compositeDisposable.add(disposable)
     }
 
+    private fun setupSearch() {
+        searchSubject
+            .distinctUntilChanged()
+            .debounce(250, TimeUnit.MILLISECONDS)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { keyword ->
+                actualSearch(keyword)
+            }.let { compositeDisposable.add(it) }
+    }
+
     fun searchFilmsByKeyword(keyword: String, isNextPage: Boolean = false) {
         if (keyword.isBlank() && !isNextPage) {
             return
@@ -115,20 +130,29 @@ class PopularViewModel @Inject constructor(
         if (!isNextPage) {
             currentPage = 1
             _currentKeyword = keyword
+        } else if (currentPage >= totalPages) {
+            return
+        }
+
+        searchSubject.onNext(keyword)
+    }
+
+    private fun actualSearch(keyword: String, isNextPage: Boolean = false) {
+        if (!isNextPage) {
             _films.postValue(DataState.Loading)
         } else {
-            if (currentPage >= totalPages) return
             currentPage++
         }
 
-        val disposable = filmRepository.searchFilmsByKeyword(currentKeyword, currentPage)
+        val disposable = filmRepository.searchFilmsByKeyword(keyword, currentPage)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .flatMap { response ->
                 totalPages = response.pagesCount
                 Observable.fromIterable(response.films)
-                    .concatMapSingle { film ->
+                    .concatMapEager { film ->
                         filmRepository.isFilmFavorite(film.filmId)
+                            .toObservable()
                             .map { isFavorite -> FilmItem(film, isFavorite) }
                     }.toList()
             }
@@ -139,14 +163,13 @@ class PopularViewModel @Inject constructor(
                 } else {
                     filmItems
                 }
-                if (newItems.isNotEmpty())
+                if (newItems.isNotEmpty()) {
                     _films.postValue(DataState.Success(newItems))
-                else
+                } else {
                     _films.postValue(DataState.NotFound)
-            }, { error ->
-                if (!isNextPage) {
-                    _films.postValue(DataState.Error(error))
                 }
+            }, { error ->
+                _films.postValue(DataState.Error(error))
             })
 
         compositeDisposable.add(disposable)
