@@ -36,6 +36,8 @@ class InformationFragment : Fragment() {
             it.showProgressBar(false)
             if (checkLandscape())
                 it.showBottomNavigation(true)
+            else
+                it.showBottomNavigation(false)
             it.setupLandscapeListener()
         }
         arguments?.getInt(ARG_FILM_ID)?.let { id ->
