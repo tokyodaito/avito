@@ -124,14 +124,15 @@ class PopularViewModel @Inject constructor(
         val disposable = filmRepository.searchFilmsByKeyword(currentKeyword, currentPage)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ response ->
+            .flatMap { response ->
                 totalPages = response.pagesCount
-                val filmItems = response.films.map {
-                    FilmItem(
-                        it,
-                        false
-                    )
-                }
+                Observable.fromIterable(response.films)
+                    .concatMapSingle { film ->
+                        filmRepository.isFilmFavorite(film.filmId)
+                            .map { isFavorite -> FilmItem(film, isFavorite) }
+                    }.toList()
+            }
+            .subscribe({ filmItems ->
                 val currentState = _films.value
                 val newItems = if (isNextPage && currentState is DataState.Success) {
                     currentState.data + filmItems

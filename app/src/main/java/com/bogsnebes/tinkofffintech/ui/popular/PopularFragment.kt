@@ -136,21 +136,24 @@ class PopularFragment : Fragment() {
     }
 
     private fun openInformationFragment(id: Int) {
-        val fragmentManager = requireActivity().supportFragmentManager
-        val fragmentTransaction = fragmentManager.beginTransaction()
+        if (isAdded) {
+            val fragmentManager = requireActivity().supportFragmentManager
+            val fragmentTransaction = fragmentManager.beginTransaction()
 
-        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+            val isLandscape =
+                resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-        val containerId = if (isLandscape) {
-            R.id.fragment_container_view_tag2
-        } else {
-            R.id.fragment_container_view_tag
+            val containerId = if (isLandscape) {
+                R.id.fragment_container_view_tag2
+            } else {
+                R.id.fragment_container_view_tag
+            }
+
+            fragmentTransaction.replace(containerId, InformationFragment.newInstance(id))
+            if (!isLandscape)
+                fragmentTransaction.addToBackStack(null)
+            fragmentTransaction.commit()
         }
-
-        fragmentTransaction.replace(containerId, InformationFragment.newInstance(id))
-        if (!isLandscape)
-            fragmentTransaction.addToBackStack(null)
-        fragmentTransaction.commit()
     }
 
 

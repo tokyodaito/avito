@@ -23,18 +23,19 @@ class InformationViewModel @Inject constructor(
 
     fun loadFilmInfo(id: Int) {
         _film.postValue(DataState.Loading)
-        val disposable = filmRepository.getFilmInfo(id)
+        val disposable = filmRepository.getFilmInfoFromDbOrNetwork(id)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({ filmResponse ->
                 _film.value = DataState.Success(filmResponse)
             }, { error ->
-                Log.e("PopularViewModel", "Error loading films: ", error)
+                Log.e("InformationViewModel", "Error loading film info: ", error)
                 _film.value = DataState.Error(error)
             })
 
         compositeDisposable.add(disposable)
     }
+
 
     override fun onCleared() {
         super.onCleared()

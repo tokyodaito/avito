@@ -24,7 +24,7 @@ class FilmRepository @Inject constructor(
             Schedulers.io()
         )
 
-    fun getFilmInfo(id: Int): Single<FilmResponse> =
+    private fun getFilmInfo(id: Int): Single<FilmResponse> =
         filmService.getFilmInfo(id).subscribeOn(
             Schedulers.io()
         )
@@ -39,7 +39,9 @@ class FilmRepository @Inject constructor(
                 nameOriginal = filmResponse.nameOriginal,
                 posterUrl = filmResponse.posterUrl,
                 description = filmResponse.description,
-                shortDescription = filmResponse.shortDescription
+                shortDescription = null,
+                genres = filmResponse.genres ?: listOf(),
+                countries = filmResponse.countries ?: listOf()
             )
             Log.d(
                 "FilmRepository",
@@ -135,4 +137,43 @@ class FilmRepository @Inject constructor(
                 }
             }
             .subscribeOn(Schedulers.io())
+
+    fun getFilmInfoFromDbOrNetwork(id: Int): Single<FilmResponse> =
+        getFilmResponseFromDb(id).onErrorResumeNext {
+            getFilmInfo(id).doOnSuccess { filmResponse ->
+                saveFilmResponseInfo(
+                    FilmResponseEntity(
+                        kinopoiskId = filmResponse.kinopoiskId ?: 95323,
+                        nameRu = filmResponse.nameRu,
+                        nameEn = filmResponse.nameEn,
+                        nameOriginal = filmResponse.nameOriginal,
+                        posterUrl = filmResponse.posterUrl,
+                        description = filmResponse.description,
+                        shortDescription = null,
+                        genres = filmResponse.genres ?: listOf(),
+                        countries = filmResponse.countries ?: listOf()
+                    )
+                ).subscribe({
+                    Log.d("FilmRepository", "Film info saved to DB")
+                }, {
+                    Log.e("FilmRepository", "Error saving film info to DB: ${it.localizedMessage}")
+                })
+            }
+        }
+
+    private fun getFilmResponseFromDb(id: Int): Single<FilmResponse> =
+        filmDao.getFilmResponse(id.toLong()).map { entity ->
+            FilmResponse(
+                kinopoiskId = entity.kinopoiskId,
+                nameRu = entity.nameRu,
+                nameEn = entity.nameEn,
+                nameOriginal = entity.nameOriginal,
+                posterUrl = entity.posterUrl,
+                description = entity.description,
+                shortDescription = entity.shortDescription,
+                countries = entity.countries,
+                genres = entity.genres
+            )
+        }
+
 }

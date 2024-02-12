@@ -32,7 +32,7 @@ class InformationFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (activity as? MainActivity)?.also {
+        (activity as? MainActivity)?.let {
             it.showProgressBar(false)
             if (checkLandscape())
                 it.showBottomNavigation(true)
@@ -137,7 +137,7 @@ class InformationFragment : Fragment() {
 
     private fun setupBackButton() {
         binding.imageView4.setOnClickListener {
-            requireActivity().supportFragmentManager.popBackStack()
+            (activity as? MainActivity)?.supportFragmentManager?.popBackStack()
         }
     }
 
