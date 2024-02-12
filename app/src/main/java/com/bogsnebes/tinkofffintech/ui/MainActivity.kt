@@ -49,27 +49,31 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupButtonOpenPopular() {
         binding.appCompatButton2.setOnClickListener {
-            if (supportFragmentManager.findFragmentById(R.id.fragment_container_view_tag) !is PopularFragment)
+            if (supportFragmentManager.findFragmentById(R.id.fragment_container_view_tag) !is PopularFragment) {
                 if (isLandscape())
-                    if (existInFragmentContainerViewTag2())
+                    if (existInFragmentContainerViewTag2()) {
                         supportFragmentManager.beginTransaction()
                             .remove(supportFragmentManager.findFragmentById(R.id.fragment_container_view_tag2) as InformationFragment)
                             .commitNow()
-            setupLandscapeListener()
-            openPopularFragment()
+                        setupLandscapeListener()
+                    }
+                openPopularFragment()
+            }
         }
     }
 
     private fun setupButtonOpenFavourites() {
         binding.appCompatButton.setOnClickListener {
-            if (supportFragmentManager.findFragmentById(R.id.fragment_container_view_tag) !is FavouritesFragment)
+            if (supportFragmentManager.findFragmentById(R.id.fragment_container_view_tag) !is FavouritesFragment) {
                 if (isLandscape())
-                    if (existInFragmentContainerViewTag2())
+                    if (existInFragmentContainerViewTag2()) {
                         supportFragmentManager.beginTransaction()
                             .remove(supportFragmentManager.findFragmentById(R.id.fragment_container_view_tag2) as InformationFragment)
                             .commitNow()
-            setupLandscapeListener()
-            openFavouritesFragment()
+                        setupLandscapeListener()
+                    }
+                openFavouritesFragment()
+            }
         }
     }
 
