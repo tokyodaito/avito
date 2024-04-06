@@ -23,7 +23,8 @@ data class Film(
 )
 
 data class Poster(
-    val previewUrl: String
+    val url: String?,
+    val previewUrl: String?
 )
 
 data class Genre(

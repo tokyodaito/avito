@@ -10,7 +10,11 @@ import retrofit2.http.Query
 interface FilmService {
 
     @GET("movie")
-    fun getTopFilms(@Query("page") page: Int): Single<TopFilmsResponse>
+    fun getTopFilms(
+        @Query("page") page: Int,
+        @Query("sortField") sortField: String?,
+        @Query("sortType") sortType: Byte?
+    ): Single<TopFilmsResponse>
 
     @GET("movie/{id}")
     fun getFilmInfo(@Path("id") id: Int): Single<FilmResponse>

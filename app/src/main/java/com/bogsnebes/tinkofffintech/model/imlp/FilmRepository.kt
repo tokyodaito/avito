@@ -20,8 +20,12 @@ class FilmRepository @Inject constructor(
     private val filmService: FilmService,
     private val filmDao: FilmDao
 ) {
-    fun getTopFilms(page: Int = 1): Single<TopFilmsResponse> =
-        filmService.getTopFilms(page).subscribeOn(
+    fun getTopFilms(
+        page: Int = 1,
+        sortField: String? = null,
+        sortType: Byte? = null
+    ): Single<TopFilmsResponse> =
+        filmService.getTopFilms(page, sortField, sortType).subscribeOn(
             Schedulers.io()
         )
 
@@ -38,7 +42,7 @@ class FilmRepository @Inject constructor(
                 nameRu = filmResponse.nameRu,
                 nameEn = filmResponse.nameEn,
                 nameOriginal = filmResponse.nameOriginal,
-                posterUrl = filmResponse.posterUrl,
+                posterUrl = filmResponse.posterUrl?.url,
                 description = filmResponse.description,
                 shortDescription = null,
                 genres = filmResponse.genres ?: listOf(),
@@ -60,21 +64,30 @@ class FilmRepository @Inject constructor(
         }
 
     fun saveFilmAsFavorite(film: Film): Completable {
-        val filmEntity = FilmEntity(
-            film.filmId,
-            film.nameRu,
-            film.nameEn,
-            film.year,
-            film.posterUrlPreview.previewUrl,
-            film.genres
-        )
+        val filmEntity = film.posterUrlPreview.previewUrl?.let {
+            FilmEntity(
+                film.filmId,
+                film.nameRu,
+                film.nameEn,
+                film.year,
+                it,
+                film.genres
+            )
+        }
 
-        Log.d("FilmRepository", "Starting to save film as favorite: ${filmEntity.filmId}")
+        if (filmEntity != null) {
+            Log.d("FilmRepository", "Starting to save film as favorite: ${filmEntity.filmId}")
+        }
 
         return getAndConvertFilmInfo(film.filmId)
-            .andThen(saveFilm(filmEntity))
+            .andThen(filmEntity?.let { saveFilm(it) })
             .doOnComplete {
-                Log.d("FilmRepository", "Film saved as favorite successfully: ${filmEntity.filmId}")
+                if (filmEntity != null) {
+                    Log.d(
+                        "FilmRepository",
+                        "Film saved as favorite successfully: ${filmEntity.filmId}"
+                    )
+                }
             }
             .doOnError { error ->
                 Log.e("FilmRepository", "Error saving film as favorite: ${error.localizedMessage}")
@@ -113,7 +126,7 @@ class FilmRepository @Inject constructor(
                         nameEn = entity.nameEn,
                         year = entity.year,
                         genres = entity.genres,
-                        posterUrlPreview = Poster(entity.posterUrlPreview)
+                        posterUrlPreview = Poster(null, entity.posterUrlPreview)
                     ),
                     favorite = true
                 )
@@ -131,7 +144,7 @@ class FilmRepository @Inject constructor(
                             nameEn = entity.nameEn,
                             year = entity.year,
                             genres = entity.genres,
-                            posterUrlPreview = Poster(entity.posterUrlPreview)
+                            posterUrlPreview = Poster(null, entity.posterUrlPreview)
                         ),
                         favorite = true
                     )
@@ -148,7 +161,7 @@ class FilmRepository @Inject constructor(
                         nameRu = filmResponse.nameRu,
                         nameEn = filmResponse.nameEn,
                         nameOriginal = filmResponse.nameOriginal,
-                        posterUrl = filmResponse.posterUrl,
+                        posterUrl = filmResponse.posterUrl?.url,
                         description = filmResponse.description,
                         shortDescription = null,
                         genres = filmResponse.genres ?: listOf(),
@@ -169,7 +182,7 @@ class FilmRepository @Inject constructor(
                 nameRu = entity.nameRu,
                 nameEn = entity.nameEn,
                 nameOriginal = entity.nameOriginal,
-                posterUrl = entity.posterUrl,
+                posterUrl = Poster(entity.posterUrl, null),
                 description = entity.description,
                 shortDescription = entity.shortDescription,
                 countries = entity.countries,

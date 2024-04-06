@@ -1,11 +1,14 @@
 package com.bogsnebes.tinkofffintech.model.network.response
 
+import com.google.gson.annotations.SerializedName
+
 data class FilmResponse(
     val kinopoiskId: Long?,
     val nameRu: String?,
     val nameEn: String?,
     val nameOriginal: String?,
-    val posterUrl: String?,
+    @SerializedName("poster")
+    val posterUrl: Poster?,
     val description: String?,
     val shortDescription: String?,
     val countries: List<Country>?,
