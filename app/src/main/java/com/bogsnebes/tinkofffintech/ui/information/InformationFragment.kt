@@ -78,13 +78,14 @@ class InformationFragment : Fragment() {
 
     private fun setupFilmInformation(film: FilmResponse) {
         binding.information.visibility = View.VISIBLE
-        binding.imageView5.load(film.posterUrl) {
+        binding.imageView5.load(film.posterUrl?.url) {
             crossfade(true)
             crossfade(300)
         }
 
-        binding.textView2.text = film.nameRu
-        binding.textView3.text = film.description
+        binding.textView2.text = if (film.nameRu.isNullOrEmpty()) "Нет информации" else film.nameRu
+        binding.textView3.text =
+            if (film.description.isNullOrEmpty()) "Нет информации" else film.description
         binding.textView4.text =
             createGenresText(film.genres?.joinToString(separator = ", ") { it.genre }
                 ?: "Нет данных")
