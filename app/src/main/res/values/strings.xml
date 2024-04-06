@@ -7,4 +7,5 @@
     <string name="search_favourites">Поиск</string>
     <string name="title_popular">Популярные</string>
     <string name="search_popular">Поиск</string>
+    <string name="sorting">Сортировка</string>
 </resources>
