@@ -3,6 +3,7 @@ package com.bogsnebes.tinkofffintech.di.network
 import android.app.Application
 import android.content.Context
 import android.net.ConnectivityManager
+import com.bogsnebes.tinkofffintech.BuildConfig
 import com.bogsnebes.tinkofffintech.model.network.FilmService
 import dagger.Module
 import dagger.Provides
@@ -24,8 +25,9 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-    private const val BASE_URL = "https://kinopoiskapiunofficial.tech/api/"
-    private const val API_KEY = "e30ffed0-76ab-4dd6-b41f-4c9da2b2735b"
+    private const val BASE_URL = "https://api.kinopoisk.dev/v1.4/"
+    private const val API_KEY =
+        BuildConfig.API_KEY // Предыдущий токен был с другого проекта, не переживайте
     private const val CACHE_SIZE = 10 * 1024 * 1024 // 10 MB
 
     @Singleton
