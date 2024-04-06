@@ -45,9 +45,13 @@ class FilmFavouritesAdapter(
             onItemClicked: (Int) -> Unit,
             onItemLongClicked: (FilmItem) -> Unit
         ) {
-            nameTextView.text = filmItem.film.nameRu
-            genreTextView.text =
-                "${filmItem.film.genres.joinToString { it.genre }} (${filmItem.film.year})"
+            nameTextView.text =
+                if (filmItem.film.nameRu.isNullOrEmpty()) "Нет информации" else filmItem.film.nameRu
+            genreTextView.text = "${
+                filmItem.film.genres.joinToString { it.genre }
+                    .takeIf { it.isNotBlank() && it != "null" }
+                    ?: "Нет информации"
+            } (${filmItem.film.year.takeIf { it.isNotBlank() && it != "null" } ?: "Нет информации"})"
             favoriteImageView.visibility = if (filmItem.favorite) View.VISIBLE else View.GONE
 
             val radiusPx = TypedValue.applyDimension(
@@ -56,7 +60,7 @@ class FilmFavouritesAdapter(
                 itemView.context.resources.displayMetrics
             )
 
-            posterImageView.load(filmItem.film.posterUrlPreview) {
+            posterImageView.load(filmItem.film.posterUrlPreview.previewUrl) {
                 crossfade(true)
                 crossfade(300)
                 transformations(RoundedCornersTransformation(radiusPx))
