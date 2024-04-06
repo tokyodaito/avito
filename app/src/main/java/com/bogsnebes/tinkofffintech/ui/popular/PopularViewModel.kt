@@ -25,8 +25,10 @@ class PopularViewModel @Inject constructor(
 
     private var currentPage = 1
     private var totalPages = Int.MAX_VALUE
+    var loadingPage = false
 
     private var _currentKeyword = ""
+    private var currentSortType: String? = null
     private val searchSubject = PublishSubject.create<String>()
 
     private var updateList: List<FilmItem> = listOf()
@@ -47,13 +49,26 @@ class PopularViewModel @Inject constructor(
         if (isNextPage) {
             if (currentPage >= totalPages) return
             currentPage++
+            loadingPage = true
         } else {
             currentPage = 1
             _films.postValue(DataState.Loading)
         }
 
-        val disposable = filmRepository.getTopFilms(currentPage)
-            .subscribeOn(Schedulers.io())
+        val sortField = when (currentSortType) {
+            "По дате выхода" -> "year"
+            "По возрасту" -> "ageRating"
+            "Страна выпуска" -> "countries.name"
+            else -> ""
+        }
+        val sortType: Byte = if (sortField.isNotEmpty()) 1 else 0
+
+
+        val disposable = if (sortField.isNotEmpty()) {
+            filmRepository.getTopFilms(currentPage, sortField, sortType)
+        } else {
+            filmRepository.getTopFilms(currentPage)
+        }.subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .flatMap { response ->
                 totalPages = response.pagesCount
@@ -75,6 +90,7 @@ class PopularViewModel @Inject constructor(
                     filmItems
                 }
                 _films.postValue(DataState.Success(newItems))
+                loadingPage = false
                 updateList = listOf()
             }, { error ->
                 if (!isNextPage) {
@@ -85,6 +101,12 @@ class PopularViewModel @Inject constructor(
 
         compositeDisposable.add(disposable)
     }
+
+    fun sortFilms(sortType: String) {
+        currentSortType = sortType
+        loadTopFilms()
+    }
+
 
     fun toggleFavoriteStatus(filmItem: FilmItem) {
         val action = if (filmItem.favorite) {

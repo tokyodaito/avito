@@ -7,6 +7,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -41,6 +42,7 @@ class PopularFragment : Fragment() {
         }
         subscribeUI(setupRecyclerFilms())
         setupUpdateButton()
+        initSpinner()
         setupSearchWatcher()
     }
 
@@ -103,18 +105,46 @@ class PopularFragment : Fragment() {
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
-                val totalItemCount = layoutManager.itemCount
-                val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
-                if (totalItemCount <= (lastVisibleItem + 5)) {
-                    if (viewModel.currentKeyword.isNotBlank())
-                        viewModel.searchFilmsByKeyword(viewModel.currentKeyword, isNextPage = true)
-                    else
-                        viewModel.loadTopFilms(isNextPage = true)
+                if (!viewModel.loadingPage) {
+                    val totalItemCount = layoutManager.itemCount
+                    val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
+                    if (totalItemCount <= (lastVisibleItem + 3)) {
+                        if (viewModel.currentKeyword.isNotBlank())
+                            viewModel.searchFilmsByKeyword(
+                                viewModel.currentKeyword,
+                                isNextPage = true
+                            )
+                        else
+                            viewModel.loadTopFilms(isNextPage = true)
+                    }
                 }
             }
         })
 
         return adapter
+    }
+
+    private fun initSpinner() {
+        val items = arrayOf("Показать все", "По дате выхода", "По возрасту", "Страна выпуска")
+        binding.spinner.apply {
+            adapter = CustomSpinnerAdapter(
+                requireContext(), android.R.layout.simple_spinner_item, items
+            )
+            onItemSelectedListener = createItemSelectedListener()
+        }
+    }
+
+    private fun createItemSelectedListener() = object : AdapterView.OnItemSelectedListener {
+        override fun onItemSelected(
+            parent: AdapterView<*>, view: View?, position: Int, id: Long
+        ) {
+            val sortType = parent.getItemAtPosition(position).toString()
+            viewModel.sortFilms(sortType)
+        }
+
+        override fun onNothingSelected(parent: AdapterView<*>) {
+            // Ничего не выбрано
+        }
     }
 
     private fun setupUpdateButton() {

@@ -42,12 +42,21 @@ class FilmAdapter(
             onItemClicked: (Int) -> Unit,
             onItemLongClicked: (FilmItem) -> Unit
         ) {
-            nameTextView.text = filmItem.film.nameRu
+            nameTextView.text =
+                if (filmItem.film.nameRu.isNullOrEmpty()) "Нет информации" else filmItem.film.nameRu
             genreTextView.text =
-                "${filmItem.film.genres.joinToString { it.genre }} (${filmItem.film.year})"
+                "${
+                    if (filmItem.film.genres.joinToString { it.genre }
+                            .isNullOrEmpty()) "Нет информации" else filmItem.film.genres.joinToString { it.genre }
+                } (${if (filmItem.film.year.isNullOrEmpty()) "Нет информации" else filmItem.film.year})"
             favoriteImageView.visibility = if (filmItem.favorite) View.VISIBLE else View.GONE
 
-            setupPosterImageView(posterImageView, filmItem.film.posterUrlPreview)
+            filmItem.film.posterUrlPreview.previewUrl?.let {
+                setupPosterImageView(
+                    posterImageView,
+                    it
+                )
+            }
 
             setupItemViewListener(filmItem, onItemClicked = { id ->
                 onItemClicked(id)
