@@ -7,6 +7,7 @@ import com.bogsnebes.tinkofffintech.model.database.dto.FilmResponseEntity
 import com.bogsnebes.tinkofffintech.model.network.FilmService
 import com.bogsnebes.tinkofffintech.model.network.response.Film
 import com.bogsnebes.tinkofffintech.model.network.response.FilmResponse
+import com.bogsnebes.tinkofffintech.model.network.response.Poster
 import com.bogsnebes.tinkofffintech.model.network.response.TopFilmsResponse
 import com.bogsnebes.tinkofffintech.ui.favourites.recycler.FilmItem
 import io.reactivex.Completable
@@ -20,7 +21,7 @@ class FilmRepository @Inject constructor(
     private val filmDao: FilmDao
 ) {
     fun getTopFilms(page: Int = 1): Single<TopFilmsResponse> =
-        filmService.getTopFilms("TOP_100_POPULAR_FILMS", page).subscribeOn(
+        filmService.getTopFilms(page).subscribeOn(
             Schedulers.io()
         )
 
@@ -64,7 +65,7 @@ class FilmRepository @Inject constructor(
             film.nameRu,
             film.nameEn,
             film.year,
-            film.posterUrlPreview,
+            film.posterUrlPreview.previewUrl,
             film.genres
         )
 
@@ -112,7 +113,7 @@ class FilmRepository @Inject constructor(
                         nameEn = entity.nameEn,
                         year = entity.year,
                         genres = entity.genres,
-                        posterUrlPreview = entity.posterUrlPreview
+                        posterUrlPreview = Poster(entity.posterUrlPreview)
                     ),
                     favorite = true
                 )
@@ -130,7 +131,7 @@ class FilmRepository @Inject constructor(
                             nameEn = entity.nameEn,
                             year = entity.year,
                             genres = entity.genres,
-                            posterUrlPreview = entity.posterUrlPreview
+                            posterUrlPreview = Poster(entity.posterUrlPreview)
                         ),
                         favorite = true
                     )
